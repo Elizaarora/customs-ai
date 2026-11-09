@@ -1,0 +1,5 @@
+# Real secrets must only reach Vercel through its encrypted env vars
+# (set via `vercel env add`), never as an uploaded file.
+.env
+.env.local
+.env*.local
