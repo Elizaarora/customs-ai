@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -15,9 +15,14 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Customs AI",
   description: "Document extraction and cross-check tool for customs documentation executives.",
-  // This page is built light-mode-only — without this, some browsers
-  // (e.g. Chrome's "Auto dark mode for web content") heuristically invert
-  // panels they guess are light, producing an inconsistent half-dark page.
+};
+
+// This page is built light-mode-only — without this, some browsers
+// (e.g. Chrome's "Auto dark mode for web content") heuristically invert
+// panels they guess are light, producing an inconsistent half-dark page.
+// (colorScheme lives on viewport, not metadata — metadata.colorScheme is a
+// deprecated no-op.)
+export const viewport: Viewport = {
   colorScheme: "light",
 };
 
