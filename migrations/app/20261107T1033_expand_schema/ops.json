@@ -1,0 +1,972 @@
+[
+  {
+    "id": "dropColumn.CheckResult.passed",
+    "label": "Drop column \"passed\" from \"CheckResult\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "passed",
+        "table": "CheckResult"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"passed\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "CheckResult",
+          "passed"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"passed\" on \"CheckResult\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop column \"passed\"",
+        "sql": "ALTER TABLE \"public\".\"CheckResult\" DROP COLUMN \"passed\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"passed\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "CheckResult",
+          "passed"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"passed\" on \"CheckResult\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.ExportLog",
+    "label": "Create table \"ExportLog\"",
+    "summary": "Creates table \"ExportLog\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "ExportLog"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"ExportLog\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ExportLog\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"ExportLog\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"ExportLog\"",
+        "sql": "CREATE TABLE \"public\".\"ExportLog\" (\n  \"createdAt\" timestamptz(3) DEFAULT (now()) NOT NULL,\n  \"id\" SERIAL NOT NULL,\n  \"rowCount\" int4 NOT NULL,\n  \"shipmentId\" int4 NOT NULL,\n  \"userId\" int4 NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"ExportLog\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"ExportLog\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"ExportLog\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "column.public.CheckResult.resolutionNote",
+    "label": "Add column \"resolutionNote\" to \"CheckResult\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "resolutionNote",
+        "table": "CheckResult"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"resolutionNote\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "CheckResult",
+          "resolutionNote"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"resolutionNote\" on \"CheckResult\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"resolutionNote\"",
+        "sql": "ALTER TABLE \"public\".\"CheckResult\" ADD COLUMN \"resolutionNote\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"resolutionNote\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "CheckResult",
+          "resolutionNote"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"resolutionNote\" on \"CheckResult\""
+        }
+      },
+      {
+        "description": "verify column \"resolutionNote\" has type \"text\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "CheckResult",
+          "resolutionNote",
+          "text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.CheckResult.status",
+    "label": "Add column \"status\" to \"CheckResult\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "status",
+        "table": "CheckResult"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"status\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "CheckResult",
+          "status"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"status\" on \"CheckResult\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"status\"",
+        "sql": "ALTER TABLE \"public\".\"CheckResult\" ADD COLUMN \"status\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"status\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "CheckResult",
+          "status"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"status\" on \"CheckResult\""
+        }
+      },
+      {
+        "description": "verify column \"status\" has type \"text\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "CheckResult",
+          "status",
+          "text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.FieldEdit.lineItemId",
+    "label": "Add column \"lineItemId\" to \"FieldEdit\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "lineItemId",
+        "table": "FieldEdit"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"lineItemId\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "FieldEdit",
+          "lineItemId"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"lineItemId\" on \"FieldEdit\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"lineItemId\"",
+        "sql": "ALTER TABLE \"public\".\"FieldEdit\" ADD COLUMN \"lineItemId\" int4"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"lineItemId\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "FieldEdit",
+          "lineItemId"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"lineItemId\" on \"FieldEdit\""
+        }
+      },
+      {
+        "description": "verify column \"lineItemId\" has type \"integer\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "FieldEdit",
+          "lineItemId",
+          "integer"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.FieldEdit.type",
+    "label": "Add column \"type\" to \"FieldEdit\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "type",
+        "table": "FieldEdit"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"type\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "FieldEdit",
+          "type"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"type\" on \"FieldEdit\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"type\"",
+        "sql": "ALTER TABLE \"public\".\"FieldEdit\" ADD COLUMN \"type\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"type\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "FieldEdit",
+          "type"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"type\" on \"FieldEdit\""
+        }
+      },
+      {
+        "description": "verify column \"type\" has type \"text\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "FieldEdit",
+          "type",
+          "text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.LineItem.hsn",
+    "label": "Add column \"hsn\" to \"LineItem\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "hsn",
+        "table": "LineItem"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"hsn\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "LineItem",
+          "hsn"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"hsn\" on \"LineItem\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"hsn\"",
+        "sql": "ALTER TABLE \"public\".\"LineItem\" ADD COLUMN \"hsn\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"hsn\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "LineItem",
+          "hsn"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"hsn\" on \"LineItem\""
+        }
+      },
+      {
+        "description": "verify column \"hsn\" has type \"text\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "LineItem",
+          "hsn",
+          "text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "alterNullability.dropNotNull.FieldEdit.fieldId",
+    "label": "Drop NOT NULL on \"FieldEdit\".\"fieldId\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "fieldId",
+        "table": "FieldEdit"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"fieldId\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "FieldEdit",
+          "fieldId"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"fieldId\" on \"FieldEdit\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop NOT NULL on \"fieldId\"",
+        "sql": "ALTER TABLE \"public\".\"FieldEdit\" ALTER COLUMN \"fieldId\" DROP NOT NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"fieldId\" is nullable",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3 AND \"is_nullable\" = $4)) AS \"result\"",
+        "params": [
+          "public",
+          "FieldEdit",
+          "fieldId",
+          "YES"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.CheckResult.involvedFieldIds",
+    "label": "Add column involvedFieldIds to CheckResult",
+    "summary": "Adds column involvedFieldIds to table CheckResult",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "CheckResult"
+      }
+    },
+    "operationClass": "additive",
+    "precheck": [
+      {
+        "description": "ensure column \"involvedFieldIds\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "CheckResult",
+          "involvedFieldIds"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"involvedFieldIds\" on \"CheckResult\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"involvedFieldIds\"",
+        "sql": "ALTER TABLE \"public\".\"CheckResult\" ADD COLUMN \"involvedFieldIds\" int4[] DEFAULT ('{}') NOT NULL"
+      },
+      {
+        "description": "drop temporary default from column \"involvedFieldIds\"",
+        "sql": "ALTER TABLE \"public\".\"CheckResult\" ALTER COLUMN \"involvedFieldIds\" DROP DEFAULT"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"involvedFieldIds\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "CheckResult",
+          "involvedFieldIds"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"involvedFieldIds\" on \"CheckResult\""
+        }
+      },
+      {
+        "description": "verify column \"involvedFieldIds\" is NOT NULL",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3 AND \"is_nullable\" = $4)) AS \"result\"",
+        "params": [
+          "public",
+          "CheckResult",
+          "involvedFieldIds",
+          "NO"
+        ]
+      },
+      {
+        "description": "verify column \"involvedFieldIds\" has no default after temporary default removal",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3 AND \"column_default\" IS NOT NULL)) AS \"result\"",
+        "params": [
+          "public",
+          "CheckResult",
+          "involvedFieldIds"
+        ]
+      },
+      {
+        "description": "verify column \"involvedFieldIds\" has type \"integer[]\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "CheckResult",
+          "involvedFieldIds",
+          "integer[]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.CheckResult.CheckResult_involvedFieldIds_elem_not_null_eeaa2953",
+    "label": "Add check constraint \"CheckResult_involvedFieldIds_elem_not_null_eeaa2953\" on \"CheckResult\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "CheckResult_involvedFieldIds_elem_not_null_eeaa2953",
+        "table": "CheckResult"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"CheckResult_involvedFieldIds_elem_not_null_eeaa2953\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "CheckResult_involvedFieldIds_elem_not_null_eeaa2953",
+          "public",
+          "\"public\".\"CheckResult\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"CheckResult_involvedFieldIds_elem_not_null_eeaa2953\" on \"CheckResult\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"CheckResult_involvedFieldIds_elem_not_null_eeaa2953\"",
+        "sql": "ALTER TABLE \"public\".\"CheckResult\" ADD CONSTRAINT \"CheckResult_involvedFieldIds_elem_not_null_eeaa2953\" CHECK (array_position(\"involvedFieldIds\", NULL) IS NULL)"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify check constraint \"CheckResult_involvedFieldIds_elem_not_null_eeaa2953\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4)) AS \"result\"",
+        "params": [
+          "CheckResult_involvedFieldIds_elem_not_null_eeaa2953",
+          "public",
+          "\"public\".\"CheckResult\"",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.CheckResult.CheckResult_status_check_db7a8d10",
+    "label": "Add check constraint \"CheckResult_status_check_db7a8d10\" on \"CheckResult\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "CheckResult_status_check_db7a8d10",
+        "table": "CheckResult"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"CheckResult_status_check_db7a8d10\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "CheckResult_status_check_db7a8d10",
+          "public",
+          "\"public\".\"CheckResult\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"CheckResult_status_check_db7a8d10\" on \"CheckResult\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"CheckResult_status_check_db7a8d10\"",
+        "sql": "ALTER TABLE \"public\".\"CheckResult\" ADD CONSTRAINT \"CheckResult_status_check_db7a8d10\" CHECK (\"status\" IN ('PASSED', 'FAILED', 'CANNOT_CHECK'))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify check constraint \"CheckResult_status_check_db7a8d10\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4)) AS \"result\"",
+        "params": [
+          "CheckResult_status_check_db7a8d10",
+          "public",
+          "\"public\".\"CheckResult\"",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.FieldEdit.FieldEdit_type_check_c338ff2a",
+    "label": "Add check constraint \"FieldEdit_type_check_c338ff2a\" on \"FieldEdit\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "FieldEdit_type_check_c338ff2a",
+        "table": "FieldEdit"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"FieldEdit_type_check_c338ff2a\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "FieldEdit_type_check_c338ff2a",
+          "public",
+          "\"public\".\"FieldEdit\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"FieldEdit_type_check_c338ff2a\" on \"FieldEdit\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"FieldEdit_type_check_c338ff2a\"",
+        "sql": "ALTER TABLE \"public\".\"FieldEdit\" ADD CONSTRAINT \"FieldEdit_type_check_c338ff2a\" CHECK (\"type\" IN ('EDIT', 'CONFIRM', 'OVERRIDE', 'MANUAL_ENTRY'))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify check constraint \"FieldEdit_type_check_c338ff2a\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4)) AS \"result\"",
+        "params": [
+          "FieldEdit_type_check_c338ff2a",
+          "public",
+          "\"public\".\"FieldEdit\"",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.ExportLog.ExportLog_shipmentId_idx_e3606ec1",
+    "label": "Create index \"ExportLog_shipmentId_idx_e3606ec1\" on \"ExportLog\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ExportLog_shipmentId_idx_e3606ec1",
+        "table": "ExportLog"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ExportLog_shipmentId_idx_e3606ec1\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ExportLog_shipmentId_idx_e3606ec1\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"ExportLog_shipmentId_idx_e3606ec1\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ExportLog_shipmentId_idx_e3606ec1\"",
+        "sql": "CREATE INDEX \"ExportLog_shipmentId_idx_e3606ec1\" ON \"public\".\"ExportLog\" (\"shipmentId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ExportLog_shipmentId_idx_e3606ec1\" exists on \"ExportLog\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"ExportLog_shipmentId_idx_e3606ec1\"",
+          "i",
+          "I",
+          "\"public\".\"ExportLog\"",
+          "btree",
+          "[\"shipmentId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.ExportLog.ExportLog_userId_idx_a489d58a",
+    "label": "Create index \"ExportLog_userId_idx_a489d58a\" on \"ExportLog\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ExportLog_userId_idx_a489d58a",
+        "table": "ExportLog"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ExportLog_userId_idx_a489d58a\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ExportLog_userId_idx_a489d58a\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"ExportLog_userId_idx_a489d58a\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ExportLog_userId_idx_a489d58a\"",
+        "sql": "CREATE INDEX \"ExportLog_userId_idx_a489d58a\" ON \"public\".\"ExportLog\" (\"userId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ExportLog_userId_idx_a489d58a\" exists on \"ExportLog\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"ExportLog_userId_idx_a489d58a\"",
+          "i",
+          "I",
+          "\"public\".\"ExportLog\"",
+          "btree",
+          "[\"userId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.FieldEdit.FieldEdit_lineItemId_idx_9b768ec0",
+    "label": "Create index \"FieldEdit_lineItemId_idx_9b768ec0\" on \"FieldEdit\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "FieldEdit_lineItemId_idx_9b768ec0",
+        "table": "FieldEdit"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"FieldEdit_lineItemId_idx_9b768ec0\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"FieldEdit_lineItemId_idx_9b768ec0\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"FieldEdit_lineItemId_idx_9b768ec0\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"FieldEdit_lineItemId_idx_9b768ec0\"",
+        "sql": "CREATE INDEX \"FieldEdit_lineItemId_idx_9b768ec0\" ON \"public\".\"FieldEdit\" (\"lineItemId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"FieldEdit_lineItemId_idx_9b768ec0\" exists on \"FieldEdit\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"FieldEdit_lineItemId_idx_9b768ec0\"",
+          "i",
+          "I",
+          "\"public\".\"FieldEdit\"",
+          "btree",
+          "[\"lineItemId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.ExportLog.ExportLog_shipmentId_fkey",
+    "label": "Add foreign key \"ExportLog_shipmentId_fkey\" on \"ExportLog\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "ExportLog_shipmentId_fkey",
+        "table": "ExportLog"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"ExportLog_shipmentId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ExportLog_shipmentId_fkey",
+          "public",
+          "\"public\".\"ExportLog\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"ExportLog_shipmentId_fkey\" on \"ExportLog\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"ExportLog_shipmentId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"ExportLog\"\nADD CONSTRAINT \"ExportLog_shipmentId_fkey\"\nFOREIGN KEY (\"shipmentId\")\nREFERENCES \"public\".\"Shipment\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"ExportLog_shipmentId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "ExportLog_shipmentId_fkey",
+          "public",
+          "\"public\".\"ExportLog\"",
+          "f",
+          "[\"shipmentId\"]",
+          "\"public\".\"Shipment\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.ExportLog.ExportLog_userId_fkey",
+    "label": "Add foreign key \"ExportLog_userId_fkey\" on \"ExportLog\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "ExportLog_userId_fkey",
+        "table": "ExportLog"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"ExportLog_userId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ExportLog_userId_fkey",
+          "public",
+          "\"public\".\"ExportLog\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"ExportLog_userId_fkey\" on \"ExportLog\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"ExportLog_userId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"ExportLog\"\nADD CONSTRAINT \"ExportLog_userId_fkey\"\nFOREIGN KEY (\"userId\")\nREFERENCES \"public\".\"User\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"ExportLog_userId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "ExportLog_userId_fkey",
+          "public",
+          "\"public\".\"ExportLog\"",
+          "f",
+          "[\"userId\"]",
+          "\"public\".\"User\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.FieldEdit.FieldEdit_lineItemId_fkey",
+    "label": "Add foreign key \"FieldEdit_lineItemId_fkey\" on \"FieldEdit\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "FieldEdit_lineItemId_fkey",
+        "table": "FieldEdit"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"FieldEdit_lineItemId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "FieldEdit_lineItemId_fkey",
+          "public",
+          "\"public\".\"FieldEdit\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"FieldEdit_lineItemId_fkey\" on \"FieldEdit\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"FieldEdit_lineItemId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"FieldEdit\"\nADD CONSTRAINT \"FieldEdit_lineItemId_fkey\"\nFOREIGN KEY (\"lineItemId\")\nREFERENCES \"public\".\"LineItem\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"FieldEdit_lineItemId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "FieldEdit_lineItemId_fkey",
+          "public",
+          "\"public\".\"FieldEdit\"",
+          "f",
+          "[\"lineItemId\"]",
+          "\"public\".\"LineItem\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  }
+]

@@ -1,0 +1,189 @@
+// use prisma-8
+
+enum Role {
+  EXECUTIVE
+  MANAGER
+}
+
+enum ShipmentStatus {
+  DRAFT
+  IN_REVIEW
+  READY_FOR_APPROVAL
+  APPROVED
+  EXPORTED
+}
+
+enum DocumentType {
+  INVOICE
+  PACKING_LIST
+  BILL_OF_LADING
+}
+
+enum ExtractionStatus {
+  PENDING
+  PROCESSING
+  SUCCEEDED
+  FAILED
+}
+
+enum FieldStatus {
+  AUTO
+  NEEDS_REVIEW
+  CONFIRMED
+  MANUAL
+}
+
+enum CheckStatus {
+  PASSED
+  FAILED
+  CANNOT_CHECK
+}
+
+enum ApprovalDecision {
+  APPROVED
+  SENT_BACK
+}
+
+enum FieldEditType {
+  EDIT
+  CONFIRM
+  OVERRIDE
+  MANUAL_ENTRY
+}
+
+model User {
+  id         Int      @id @default(autoincrement())
+  email      String   @unique
+  name       String
+  role       Role
+  createdAt  DateTime @default(now()) @onCreate(now())
+
+  uploadedDocuments Document[]
+  fieldEdits        FieldEdit[]
+  approvals         Approval[]
+  resolvedChecks    CheckResult[]
+  exportLogs        ExportLog[]
+}
+
+model Shipment {
+  id         Int                @id @default(autoincrement())
+  reference  String             @unique
+  status     ShipmentStatus     @default(DRAFT)
+  createdAt  DateTime           @default(now()) @onCreate(now())
+  updatedAt  temporal.UpdatedAt
+
+  documents  Document[]
+  checks     CheckResult[]
+  approvals  Approval[]
+  exportLogs ExportLog[]
+}
+
+model Document {
+  id               Int               @id @default(autoincrement())
+  shipmentId       Int
+  shipment         Shipment          @relation(fields: [shipmentId], references: [id])
+  type             DocumentType
+  filePath         String
+  uploadedById     Int
+  uploadedBy       User              @relation(fields: [uploadedById], references: [id])
+  uploadedAt       DateTime          @default(now()) @onCreate(now())
+  extractionStatus ExtractionStatus  @default(PENDING)
+  extractionError  String?
+
+  fields    ExtractedField[]
+  lineItems LineItem[]
+
+  @@unique([shipmentId, type])
+}
+
+model ExtractedField {
+  id         Int         @id @default(autoincrement())
+  documentId Int
+  document   Document    @relation(fields: [documentId], references: [id])
+  name       String
+  value      String
+  confidence Float?
+  status     FieldStatus @default(AUTO)
+  updatedAt  temporal.UpdatedAt
+
+  edits FieldEdit[]
+
+  @@unique([documentId, name])
+}
+
+model LineItem {
+  id            Int         @id @default(autoincrement())
+  documentId    Int
+  document      Document    @relation(fields: [documentId], references: [id])
+  description   String
+  hsn           String?
+  quantity      Float
+  unitPrice     Float
+  unitOfMeasure String?
+  lineTotal     Float
+  confidence    Float?
+  status        FieldStatus @default(AUTO)
+
+  edits FieldEdit[]
+}
+
+model CheckResult {
+  id         Int          @id @default(autoincrement())
+  shipmentId Int
+  shipment   Shipment     @relation(fields: [shipmentId], references: [id])
+  checkName  String
+  // Nullable only so adding this column didn't require backfilling pre-
+  // migration test rows — every row this app writes always sets it.
+  status           CheckStatus?
+  details          String
+  involvedFieldIds Int[]
+  resolvedById     Int?
+  resolvedBy       User?        @relation(fields: [resolvedById], references: [id])
+  resolvedAt       DateTime?
+  resolutionNote   String?
+  createdAt        DateTime     @default(now()) @onCreate(now())
+}
+
+// Exactly one of fieldId / lineItemId is set — enforced in the actions that
+// create these rows, not at the database level (keeps the two call sites,
+// confirm-a-field and confirm-a-line-item, simple rather than needing a
+// polymorphic join).
+model FieldEdit {
+  id         Int             @id @default(autoincrement())
+  fieldId    Int?
+  field      ExtractedField? @relation(fields: [fieldId], references: [id])
+  lineItemId Int?
+  lineItem   LineItem?       @relation(fields: [lineItemId], references: [id])
+  userId     Int
+  user       User            @relation(fields: [userId], references: [id])
+  // Nullable for the same reason as CheckResult.status above.
+  type       FieldEditType?
+  oldValue   String?
+  newValue   String
+  createdAt  DateTime        @default(now()) @onCreate(now())
+}
+
+model Approval {
+  id           Int               @id @default(autoincrement())
+  shipmentId   Int
+  shipment     Shipment          @relation(fields: [shipmentId], references: [id])
+  approvedById Int
+  approvedBy   User              @relation(fields: [approvedById], references: [id])
+  // Nullable so adding this column didn't require backfilling the one
+  // pre-migration test approval in the dev DB — every row this app writes
+  // always sets it. A null row predates SENT_BACK existing, so it's always
+  // treated as an approval, never a send-back.
+  decision     ApprovalDecision?
+  comment      String?
+  approvedAt   DateTime          @default(now()) @onCreate(now())
+}
+
+model ExportLog {
+  id         Int      @id @default(autoincrement())
+  shipmentId Int
+  shipment   Shipment @relation(fields: [shipmentId], references: [id])
+  userId     Int
+  user       User     @relation(fields: [userId], references: [id])
+  rowCount   Int
+  createdAt  DateTime @default(now()) @onCreate(now())
+}
