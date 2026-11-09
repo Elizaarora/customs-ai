@@ -23,6 +23,7 @@ export async function uploadDocument(shipmentId: number, type: DocumentType, for
   await saveFile(bytes, relativePath);
 
   const document = await db.orm.public.Document.upsert({
+    conflictOn: { shipmentId, type },
     create: {
       shipmentId,
       type,

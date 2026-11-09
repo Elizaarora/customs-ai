@@ -94,6 +94,7 @@ export async function manualEntry(shipmentId: number, documentId: number, formDa
       if (!value) continue; // manual entry can be partial — fill in what's known
 
       const field = await tx.orm.public.ExtractedField.upsert({
+        conflictOn: { documentId, name },
         create: { documentId, name, value, confidence: null, status: 'MANUAL' },
         update: { value, status: 'MANUAL' },
       });

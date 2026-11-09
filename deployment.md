@@ -22,7 +22,13 @@ npx prisma db init
 # 4. Seed the two demo users (safe to re-run any time)
 npm run db:seed
 
-# 5. Start the dev server
+# 5. Generate the sample PDFs, then seed the brief's named shipments
+#    (SHP-24811 weight-mismatch, SHP-24812 cannot-check, a clean one) with
+#    real fields and real computed cross-check results (safe to re-run)
+npm run fixtures:pdfs
+npm run db:seed:shipments
+
+# 6. Start the dev server
 npm run dev
 ```
 
@@ -56,7 +62,11 @@ Vercel build — see why in `docs/TDD.md`'s "what I'd do next" section):
 
 ```powershell
 $env:DATABASE_URL = "<production connection string>"
-npm run db:deploy   # applies migrations, then seeds the 2 demo users
+$env:STORAGE_DRIVER = "supabase"   # so seeded documents land in the real bucket, not local disk
+$env:SUPABASE_URL = "<production project URL>"
+$env:SUPABASE_SERVICE_ROLE_KEY = "<production service-role key>"
+$env:SUPABASE_STORAGE_BUCKET = "<production bucket name>"
+npm run db:deploy   # applies migrations, seeds the 2 demo users and the sample shipments
 ```
 
 Re-run `npm run db:deploy` after any schema change that ships a new migration.

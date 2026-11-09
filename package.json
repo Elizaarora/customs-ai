@@ -11,8 +11,9 @@
     "fixtures:pdfs": "node scripts/generate-fixture-pdfs.mjs",
     "contract:emit": "prisma contract emit",
     "db:seed": "tsx src/prisma/seed.ts",
+    "db:seed:shipments": "tsx --conditions=react-server src/prisma/seed-shipments.ts",
     "db:migrate:deploy": "prisma db migrate --yes",
-    "db:deploy": "npm run db:migrate:deploy && npm run db:seed"
+    "db:deploy": "npm run db:migrate:deploy && npm run db:seed && npm run fixtures:pdfs && npm run db:seed:shipments"
   },
   "dependencies": {
     "@google/genai": "^3.0.0",

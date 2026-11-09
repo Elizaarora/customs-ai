@@ -6,11 +6,13 @@ import { db } from './db';
 
 async function main() {
   await db.orm.public.User.upsert({
+    conflictOn: { email: 'exec@example.com' },
     create: { email: 'exec@example.com', name: 'Priya Shah', role: 'EXECUTIVE' },
     update: { name: 'Priya Shah', role: 'EXECUTIVE' },
   });
 
   await db.orm.public.User.upsert({
+    conflictOn: { email: 'manager@example.com' },
     create: { email: 'manager@example.com', name: 'Arjun Mehta', role: 'MANAGER' },
     update: { name: 'Arjun Mehta', role: 'MANAGER' },
   });

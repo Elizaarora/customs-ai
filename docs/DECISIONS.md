@@ -278,6 +278,39 @@ testing never would have:
   error crash into a 500 instead of a clean 404. Fixed: `readFile` is now
   wrapped in a try/catch in the document-serving route.
 
+## FIX — Every upsert() in the app was missing conflictOn, and would crash on a real retry
+Writing a seed script for sample shipments (see below) surfaced a real bug: this
+ORM's `.upsert({create, update})` does NOT auto-detect which unique constraint to
+target — it needs an explicit `conflictOn`. Without it, calling `.upsert()` a
+second time with data that collides on a unique column throws a raw Postgres
+`23505` unique-violation error instead of updating, which is a crash, not a
+graceful update (hard rule #3). This had gone unnoticed because none of the
+flows that use it had actually been re-run against already-existing data during
+testing. Fixed all four call sites: `uploadDocument`'s `Document.upsert`
+(re-uploading the same document type), `extractDocument`'s `ExtractedField.upsert`
+(re-extraction), `manualEntry`'s `ExtractedField.upsert` (resubmitting manual
+entry), and `seed.ts`'s `User.upsert` (re-running the seed script) — each now
+passes `conflictOn` matching that model's real unique constraint.
+
+## FEATURE — Seed script for the brief's named sample shipments
+"Seed from the sample data" was only partially true: `npm run db:seed` seeded
+the 2 demo users, but the 9 fixture PDFs existed only as files — nothing loaded
+them into the database as real shipments. Added `npm run db:seed:shipments`,
+which creates SHP-24811, SHP-24812, and a fully clean shipment (SHP-24900) with
+real field values (including one deliberately low-confidence field per shipment,
+to demo the review screen's highlighting) and runs the real
+`runChecksForShipment` against them — not hardcoded check results — which also
+serves as a live confirmation that the app's own logic reproduces the brief's
+stated facts: verified SHP-24811 fails GROSS_WEIGHT, SHP-24812 is CANNOT_CHECK
+on every cross-document check, and SHP-24900 passes everything.
+
+One real wrinkle: this script imports `storage.ts` and
+`run-checks-for-shipment.ts`, both guarded with `import 'server-only'`, which is
+a no-op only inside Next's own server bundler (via the `react-server` export
+condition) and otherwise always throws — so running it with plain `tsx` crashes
+immediately. Fixed by baking `tsx --conditions=react-server` into the
+`db:seed:shipments` npm script itself, so nobody else has to rediscover this.
+
 ## NOTE — Extraction runs synchronously inside the upload request
 `uploadDocument` awaits `extractDocument` before redirecting, so the upload request
 is slow (seconds) while Gemini responds, and two uploads within the same minute can

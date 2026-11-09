@@ -82,6 +82,7 @@ export async function extractDocument(documentId: number): Promise<void> {
     await db.transaction(async (tx) => {
       for (const field of result.fields) {
         await tx.orm.public.ExtractedField.upsert({
+          conflictOn: { documentId, name: field.name },
           create: {
             documentId,
             name: field.name,
