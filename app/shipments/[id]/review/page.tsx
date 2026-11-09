@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { FileText } from 'lucide-react';
+import { FileText, History } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import { requireRole } from '../../../../src/lib/auth';
 import { db } from '../../../../src/prisma/db';
@@ -54,9 +54,25 @@ export default async function ReviewPage({
     .include('documents', (documents) =>
       documents
         .select('id', 'type', 'extractionStatus', 'extractionError')
-        .include('fields', (fields) => fields.select('id', 'name', 'value', 'confidence', 'status'))
+        .include('fields', (fields) =>
+          fields
+            .select('id', 'name', 'value', 'confidence', 'status')
+            .include('edits', (edits) =>
+              edits
+                .select('id', 'oldValue', 'newValue', 'type', 'createdAt')
+                .include('user', (u) => u.select('name'))
+                .orderBy((e) => e.createdAt.desc()),
+            ),
+        )
         .include('lineItems', (lineItems) =>
-          lineItems.select('id', 'description', 'hsn', 'quantity', 'unitPrice', 'lineTotal', 'confidence', 'status'),
+          lineItems
+            .select('id', 'description', 'hsn', 'quantity', 'unitPrice', 'lineTotal', 'confidence', 'status')
+            .include('edits', (edits) =>
+              edits
+                .select('id', 'oldValue', 'newValue', 'type', 'createdAt')
+                .include('user', (u) => u.select('name'))
+                .orderBy((e) => e.createdAt.desc()),
+            ),
         ),
     )
     .first();
@@ -67,6 +83,17 @@ export default async function ReviewPage({
 
   const checks = await latestCheckResultsByName(shipmentId);
   const checksByName = new Map(checks.map((check) => [check.checkName, check]));
+
+  const editHistory = shipment.documents
+    .flatMap((document) => [
+      ...document.fields.flatMap((field) =>
+        field.edits.map((edit) => ({ ...edit, documentType: document.type, label: field.name })),
+      ),
+      ...document.lineItems.flatMap((item) =>
+        item.edits.map((edit) => ({ ...edit, documentType: document.type, label: `Line item — ${item.description}` })),
+      ),
+    ])
+    .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 
   const uploadedTypes = shipment.documents.map((document) => document.type);
   const requested = Array.isArray(requestedType) ? requestedType[0] : requestedType;
@@ -245,6 +272,36 @@ export default async function ReviewPage({
               </div>
             );
           })}
+        </Card>
+
+        <Card className="flex flex-col gap-3">
+          <h2 className="font-medium text-neutral-900">Edit history</h2>
+          {editHistory.length === 0 ? (
+            <EmptyState
+              icon={<History size={32} />}
+              title="No edits yet"
+              hint="Confirmations, edits, and overrides will appear here."
+            />
+          ) : (
+            <ul className="flex flex-col gap-3">
+              {editHistory.map((edit) => (
+                <li key={edit.id} className="border-b border-neutral-100 pb-3 text-sm last:border-0 last:pb-0">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <span className="font-medium text-neutral-900">
+                      {formatLabel(edit.documentType)} — {edit.label}
+                    </span>
+                    <span className="text-xs text-neutral-500">
+                      {edit.user?.name ?? 'Unknown user'} · {edit.createdAt.toLocaleString()}
+                      {edit.type && ` · ${formatLabel(edit.type)}`}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-neutral-600">
+                    {edit.oldValue ?? '—'} <span className="text-neutral-400">→</span> {edit.newValue}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          )}
         </Card>
       </div>
     </AppShell>

@@ -311,6 +311,15 @@ condition) and otherwise always throws — so running it with plain `tsx` crashe
 immediately. Fixed by baking `tsx --conditions=react-server` into the
 `db:seed:shipments` npm script itself, so nobody else has to rediscover this.
 
+## FEATURE — Edit history view on the review screen
+The brief lists "edit history" as a Must Have alongside the accuracy report,
+but only the accuracy report had a screen — every edit/confirm/override/manual
+entry was already writing a correct FieldEdit row (who, when, old → new, type),
+just with nothing displaying it. Added a card at the bottom of the review
+screen listing every edit for that shipment's fields and line items, newest
+first, with the document type, field name, who made the change, when, the
+edit type, and the old → new value.
+
 ## NOTE — Extraction runs synchronously inside the upload request
 `uploadDocument` awaits `extractDocument` before redirecting, so the upload request
 is slow (seconds) while Gemini responds, and two uploads within the same minute can
