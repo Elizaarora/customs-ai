@@ -1,6 +1,6 @@
 # Technical Design Document — Customs Document Extraction & Cross-Check Tool
 
-**GitHub**: _not yet pushed — this repo has no remote configured. Add the URL here once it's created._
+**GitHub**: https://github.com/Elizaarora/customs-ai
 
 **Status**: working demo, fake data only. See "What this does not satisfy" at the
 bottom before reading this as a production readiness claim.
