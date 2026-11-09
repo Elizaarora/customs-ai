@@ -261,6 +261,23 @@ rendering feature breaking the single most basic flow (visiting the site
 signed out) twice is reason enough to just turn it off rather than keep
 chasing narrower workarounds.
 
+## FIX — Real Vercel deploy: pooler DB connection, and a graceful 404 for missing files
+Deploying for real to Vercel surfaced two more issues `next dev` and local
+testing never would have:
+
+- **`getaddrinfo ENOTFOUND db.<ref>.supabase.co`**: Supabase's direct database
+  hostname only resolves over IPv6 by default, and Vercel's serverless
+  functions have no outbound IPv6 — every query failed. Fixed by switching
+  `DATABASE_URL` (production only; local dev still uses the direct connection,
+  which works fine from this machine) to Supabase's transaction-mode
+  connection pooler (`*.pooler.supabase.com:6543`, username
+  `postgres.<project-ref>`), which is IPv4-reachable.
+- **Documents uploaded in dev (disk storage) 500'd when viewed on the live
+  Vercel deployment (Supabase storage)**: expected, since the two environments
+  use different storage backends by design — but the route let the missing-file
+  error crash into a 500 instead of a clean 404. Fixed: `readFile` is now
+  wrapped in a try/catch in the document-serving route.
+
 ## NOTE — Extraction runs synchronously inside the upload request
 `uploadDocument` awaits `extractDocument` before redirecting, so the upload request
 is slow (seconds) while Gemini responds, and two uploads within the same minute can

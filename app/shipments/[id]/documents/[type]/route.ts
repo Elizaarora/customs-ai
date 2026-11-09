@@ -28,7 +28,15 @@ export async function GET(_request: Request, { params }: RouteContext<'/shipment
     return new Response('Not found', { status: 404 });
   }
 
-  const bytes = await readFile(document.filePath);
+  let bytes: Buffer;
+  try {
+    bytes = await readFile(document.filePath);
+  } catch {
+    // Most commonly: the file was uploaded under a different storage driver
+    // than the one currently configured (e.g. disk in dev, Supabase in
+    // prod) — a missing file, not a crash.
+    return new Response('File not found in storage', { status: 404 });
+  }
 
   return new Response(new Uint8Array(bytes), {
     headers: {
