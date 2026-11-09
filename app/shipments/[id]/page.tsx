@@ -9,6 +9,7 @@ import { Badge } from '../../../src/components/ui/badge';
 import { Button } from '../../../src/components/ui/button';
 import { Card } from '../../../src/components/ui/card';
 import { Input } from '../../../src/components/ui/input';
+import { UploadForm } from '../../../src/components/upload-form';
 import type { Models } from '../../../src/prisma/contract.d';
 import { logout } from '../../login/actions';
 import { approveShipment, sendBackShipment, uploadDocument } from './actions';
@@ -86,18 +87,7 @@ export default async function ShipmentPage({ params }: PageProps<'/shipments/[id
                 {document ? (
                   extractionBadge(document.extractionStatus)
                 ) : (
-                  <form action={uploadDocument.bind(null, shipment.id, type)} className="flex flex-wrap items-center gap-2">
-                    <input
-                      type="file"
-                      name="file"
-                      accept=".pdf,.png,.jpg,.jpeg"
-                      required
-                      className="max-w-full text-sm text-neutral-600 file:mr-2 file:rounded-md file:border file:border-neutral-300 file:bg-neutral-0 file:px-2 file:py-1 file:text-sm"
-                    />
-                    <Button type="submit" variant="secondary">
-                      Upload
-                    </Button>
-                  </form>
+                  <UploadForm action={uploadDocument.bind(null, shipment.id, type)} />
                 )}
               </Card>
             );

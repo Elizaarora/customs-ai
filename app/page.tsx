@@ -21,6 +21,7 @@ export default async function Home() {
   return (
     <AppShell
       user={user}
+      active="shipments"
       signOutAction={
         <form action={logout}>
           <Button type="submit" variant="ghost">

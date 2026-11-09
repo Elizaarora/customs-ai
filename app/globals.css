@@ -91,3 +91,15 @@ body {
   outline: 2px solid var(--color-accent-600);
   outline-offset: 2px;
 }
+
+/* Indeterminate progress bar for the upload form — extraction runs inside
+   the same request, so this can take several seconds with no real byte
+   progress to report. */
+@keyframes upload-progress {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(300%);
+  }
+}

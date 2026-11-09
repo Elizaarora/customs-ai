@@ -19,6 +19,7 @@ export default async function AccuracyReportPage() {
   return (
     <AppShell
       user={user}
+      active="accuracy"
       signOutAction={
         <form action={logout}>
           <Button type="submit" variant="ghost">
