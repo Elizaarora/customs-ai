@@ -13,6 +13,7 @@ import { Card } from '../../../../src/components/ui/card';
 import { EmptyState } from '../../../../src/components/ui/empty-state';
 import { Input } from '../../../../src/components/ui/input';
 import { cn } from '../../../../src/components/ui/cn';
+import { formatLabel } from '../../../../src/lib/format-label';
 import type { Models } from '../../../../src/prisma/contract.d';
 import { logout } from '../../../login/actions';
 import { confirmField, confirmLineItem, editField, manualEntry, overrideCheck } from './actions';
@@ -27,7 +28,7 @@ function needsReviewClass(flagged: boolean) {
 }
 
 function FieldBadge({ status, confidence }: { status: string; confidence: number | null }) {
-  const label = confidence !== null ? `${status} · ${Math.round(confidence * 100)}%` : status;
+  const label = confidence !== null ? `${formatLabel(status)} · ${Math.round(confidence * 100)}%` : formatLabel(status);
   return (
     <Badge status={status === 'NEEDS_REVIEW' ? 'needs-review' : status === 'CONFIRMED' || status === 'MANUAL' ? 'confirmed' : 'neutral'}>
       {label}
@@ -124,7 +125,7 @@ export default async function ReviewPage({
                       : 'text-neutral-500 hover:text-neutral-900',
                   )}
                 >
-                  {type.replace('_', ' ')}
+                  {formatLabel(type)}
                 </Link>
               ))}
             </nav>
@@ -133,7 +134,7 @@ export default async function ReviewPage({
               <embed
                 src={`/shipments/${shipmentId}/documents/${activeType}`}
                 className="h-[50vh] w-full rounded-md border border-neutral-200 lg:h-[700px]"
-                title={`${activeType} document`}
+                title={`${formatLabel(activeType)} document`}
               />
 
               <div className="flex flex-col gap-3 lg:overflow-y-auto">
@@ -224,9 +225,9 @@ export default async function ReviewPage({
             return (
               <div key={checkName} className={cn('rounded-md border p-3 text-sm', needsReviewClass(failed))}>
                 <div className="flex items-center justify-between">
-                  <span className="font-medium text-neutral-900">{checkName.replace('_', ' ')}</span>
+                  <span className="font-medium text-neutral-900">{formatLabel(checkName)}</span>
                   <Badge status={status === 'PASSED' ? 'confirmed' : status === 'FAILED' ? 'failed' : 'neutral'}>
-                    {status === 'FAILED' && check?.resolvedAt ? 'FAILED (overridden)' : status.replace('_', ' ')}
+                    {status === 'FAILED' && check?.resolvedAt ? 'Failed (overridden)' : formatLabel(status)}
                   </Badge>
                 </div>
                 {check && <p className="mt-1 text-neutral-600">{check.details}</p>}

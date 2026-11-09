@@ -31,8 +31,8 @@ function UploadProgressBar() {
 // the upload needs its own loading state, not just silence until it's done.
 export function UploadForm({ action }: { action: (formData: FormData) => void }) {
   return (
-    <form action={action} className="flex flex-1 flex-col gap-2">
-      <div className="flex flex-wrap items-center gap-2">
+    <form action={action} className="flex w-full flex-col gap-2 sm:w-auto">
+      <div className="flex flex-wrap items-center justify-end gap-2">
         <input
           type="file"
           name="file"

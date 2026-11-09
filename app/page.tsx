@@ -3,12 +3,19 @@ import { Package } from 'lucide-react';
 import { requireRole } from '../src/lib/auth';
 import { db } from '../src/prisma/db';
 import { AppShell } from '../src/components/app-shell';
+import { Badge } from '../src/components/ui/badge';
 import { Button } from '../src/components/ui/button';
 import { Input } from '../src/components/ui/input';
 import { EmptyState } from '../src/components/ui/empty-state';
 import { Table, TableBody, TableCell, TableHead, TableRow } from '../src/components/ui/table';
+import { formatLabel } from '../src/lib/format-label';
 import { logout } from './login/actions';
 import { createShipment } from './shipments/actions';
+
+function shipmentStatusBadge(status: string) {
+  if (status === 'EXPORTED') return <Badge status="confirmed">{formatLabel(status)}</Badge>;
+  return <Badge status="neutral">{formatLabel(status)}</Badge>;
+}
 
 export default async function Home() {
   const user = await requireRole(['EXECUTIVE', 'MANAGER']);
@@ -56,7 +63,7 @@ export default async function Home() {
                         {shipment.reference}
                       </Link>
                     </TableCell>
-                    <TableCell className="text-neutral-600">{shipment.status}</TableCell>
+                    <TableCell>{shipmentStatusBadge(shipment.status)}</TableCell>
                     <TableCell className="text-neutral-600">{shipment.documents} / 3</TableCell>
                   </TableRow>
                 ))}

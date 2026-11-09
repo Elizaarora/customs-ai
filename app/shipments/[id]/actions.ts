@@ -2,6 +2,7 @@
 
 import { z } from 'zod';
 import { redirect } from 'next/navigation';
+import { revalidatePath } from 'next/cache';
 import { requireRole } from '../../../src/lib/auth';
 import { db } from '../../../src/prisma/db';
 import { saveFile } from '../../../src/lib/storage/storage';
@@ -40,6 +41,10 @@ export async function uploadDocument(shipmentId: number, type: DocumentType, for
   // Synchronous on purpose — this is a low-volume internal tool, no job queue needed.
   await extractDocument(document.id);
 
+  // redirect() to the exact page we're already on doesn't by itself bust the
+  // client Router Cache, so without this the badge/status wouldn't update
+  // until a manual refresh.
+  revalidatePath(`/shipments/${shipmentId}`);
   redirect(`/shipments/${shipmentId}`);
 }
 
@@ -62,6 +67,7 @@ export async function approveShipment(shipmentId: number) {
 
   await db.orm.public.Approval.create({ shipmentId, approvedById: user.id, decision: 'APPROVED' });
 
+  revalidatePath(`/shipments/${shipmentId}`);
   redirect(`/shipments/${shipmentId}`);
 }
 
@@ -82,5 +88,6 @@ export async function sendBackShipment(shipmentId: number, formData: FormData) {
     comment,
   });
 
+  revalidatePath(`/shipments/${shipmentId}`);
   redirect(`/shipments/${shipmentId}`);
 }

@@ -10,6 +10,7 @@ import { Button } from '../../../src/components/ui/button';
 import { Card } from '../../../src/components/ui/card';
 import { Input } from '../../../src/components/ui/input';
 import { UploadForm } from '../../../src/components/upload-form';
+import { formatLabel } from '../../../src/lib/format-label';
 import type { Models } from '../../../src/prisma/contract.d';
 import { logout } from '../../login/actions';
 import { approveShipment, sendBackShipment, uploadDocument } from './actions';
@@ -21,7 +22,7 @@ const DOCUMENT_TYPES: DocumentType[] = ['INVOICE', 'PACKING_LIST', 'BILL_OF_LADI
 function extractionBadge(status: Models.public_Document['extractionStatus']) {
   if (status === 'SUCCEEDED') return <Badge status="confirmed">Extracted</Badge>;
   if (status === 'FAILED') return <Badge status="failed">Failed</Badge>;
-  return <Badge status="neutral">{status}</Badge>;
+  return <Badge status="neutral">{formatLabel(status)}</Badge>;
 }
 
 export default async function ShipmentPage({ params }: PageProps<'/shipments/[id]'>) {
@@ -78,7 +79,7 @@ export default async function ShipmentPage({ params }: PageProps<'/shipments/[id
             return (
               <Card key={type} className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <h2 className="font-medium text-neutral-900">{type.replace('_', ' ')}</h2>
+                  <h2 className="font-medium text-neutral-900">{formatLabel(type)}</h2>
                   {document && document.extractionStatus === 'FAILED' && document.extractionError && (
                     <p className="mt-1 text-sm text-danger-fg">{document.extractionError}</p>
                   )}
