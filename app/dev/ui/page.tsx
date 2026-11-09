@@ -15,8 +15,6 @@ import { Tabs } from '../../../src/components/ui/tabs';
 import { ToastProvider } from '../../../src/components/ui/toast';
 import { DialogDemo, ToastDemo, TooltipDemo } from './interactive';
 
-export const instant = false;
-
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="flex flex-col gap-3">

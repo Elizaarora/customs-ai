@@ -13,8 +13,6 @@ import type { Models } from '../../../src/prisma/contract.d';
 import { logout } from '../../login/actions';
 import { approveShipment, sendBackShipment, uploadDocument } from './actions';
 
-export const instant = false;
-
 type DocumentType = Models.public_Document['type'];
 
 const DOCUMENT_TYPES: DocumentType[] = ['INVOICE', 'PACKING_LIST', 'BILL_OF_LADING'];

@@ -10,10 +10,6 @@ import { Table, TableBody, TableCell, TableHead, TableRow } from '../src/compone
 import { logout } from './login/actions';
 import { createShipment } from './shipments/actions';
 
-// This page always checks a live session against the database, so it can
-// never render instantly — tell Cache Components not to flag that.
-export const instant = false;
-
 export default async function Home() {
   const user = await requireRole(['EXECUTIVE', 'MANAGER']);
 

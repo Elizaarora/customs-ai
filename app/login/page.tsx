@@ -8,10 +8,6 @@ import { Card } from '../../src/components/ui/card';
 import { EmptyState } from '../../src/components/ui/empty-state';
 import { loginAs } from './actions';
 
-// Checks the current session and reads the live user list, so this page
-// always hits the database — it can never render instantly.
-export const instant = false;
-
 export default async function LoginPage() {
   // Cache Components would otherwise try to bake this page into a static
   // shell using an empty, placeholder session. Force it to run per-request.

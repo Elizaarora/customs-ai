@@ -7,8 +7,6 @@ import { Card } from '../../../src/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableRow } from '../../../src/components/ui/table';
 import { logout } from '../../login/actions';
 
-export const instant = false;
-
 function accuracyPercent(total: number, edited: number): string {
   if (total === 0) return '—';
   return `${Math.round(((total - edited) / total) * 100)}%`;

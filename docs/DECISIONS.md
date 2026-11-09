@@ -244,6 +244,23 @@ Closed two of the previously-deferred items:
   the originally-scoped 8 — noting the drift from that earlier assumption rather than
   silently changing it.
 
+## FIX — Disabled Cache Components after a production-only redirect bug
+Deploying to real Vercel infrastructure surfaced a bug `next dev` never showed:
+with the experimental `cacheComponents` flag on, a `redirect()` thrown mid-render
+on a route with no static content for a logged-out visitor (the root `/`) leaked
+as a raw RSC digest string in a cached 200 response instead of becoming a real
+HTTP 307 — meaning every signed-out visitor hit a broken page in production,
+not a redirect to `/login`. Confirmed by building and running `next start`
+locally: same broken response. Turned `cacheComponents`/`partialPrefetching`
+off in `next.config.ts` and removed the now-invalid `export const instant =
+false` route config from the 6 pages that had it; `next build` + `next start`
+locally now returns a real `307` with `Cache-Control: private, no-cache,
+no-store`. This is the second Cache-Components-related redirect bug this
+project has hit (the first was the `loading.tsx` one) — an experimental
+rendering feature breaking the single most basic flow (visiting the site
+signed out) twice is reason enough to just turn it off rather than keep
+chasing narrower workarounds.
+
 ## NOTE — Extraction runs synchronously inside the upload request
 `uploadDocument` awaits `extractDocument` before redirecting, so the upload request
 is slow (seconds) while Gemini responds, and two uploads within the same minute can
