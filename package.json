@@ -4,14 +4,32 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma contract emit && next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "vitest run",
+    "fixtures:pdfs": "node scripts/generate-fixture-pdfs.mjs",
+    "contract:emit": "prisma contract emit",
+    "db:seed": "tsx src/prisma/seed.ts",
+    "db:migrate:deploy": "prisma db migrate --yes",
+    "db:deploy": "npm run db:migrate:deploy && npm run db:seed"
   },
   "dependencies": {
+    "@google/genai": "^3.0.0",
+    "@prisma/orm-postgres": "^8.0.0-rc.22",
+    "@supabase/supabase-js": "^2.119.0",
+    "clsx": "^2.1.1",
+    "dotenv": "^18.0.9",
+    "exceljs": "^4.4.0",
+    "jose": "^6.2.15",
+    "lucide-react": "^1.70.0",
     "next": "16.4.5",
+    "prisma": "^8.0.0-rc.30",
     "react": "19.3.0",
-    "react-dom": "19.3.0"
+    "react-dom": "19.3.0",
+    "server-only": "^0.0.1",
+    "temporal-polyfill": "^1.0.8",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@tailwindcss/turbopack": "^4",
@@ -20,7 +38,11 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.4.5",
+    "pdf-lib": "^1.17.1",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "tsx": "^4.23.15",
+    "typescript": "^5",
+    "vite": "^8.3.6",
+    "vitest": "^5.1.0"
   }
 }
